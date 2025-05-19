@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'org.example'
@@ -25,4 +26,18 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+tasks.register('runProblem1', JavaExec) {
+    group = 'application'
+    description = 'Run Problem 1 main class'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass.set('org.example.problem1.CategoryTreeMain')
+}
+
+tasks.register('runProblem2', JavaExec) {
+    group = 'application'
+    description = 'Run Problem 2 main class'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass.set('org.example.problem2.CoinChangeMain')
 }

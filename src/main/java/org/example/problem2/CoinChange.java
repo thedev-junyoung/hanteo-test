@@ -18,10 +18,4 @@ public class CoinChange {
         return total;
     }
 
-    public static void main(String[] args) {
-
-        System.out.println(CoinChange.countWays(new int[]{1, 2, 3}, 4));  // → 4
-        System.out.println(CoinChange.countWays(new int[]{2, 5, 3, 6}, 10));  // → 5
-
-    }
 }

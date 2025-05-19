@@ -1,66 +1,51 @@
+# Hanteo Global Backend Coding Test
 
-본 레포지토리는 한터글로벌 백엔드 코딩테스트 문제에 대한 해결 결과입니다. 두 문제 모두 구현 및 테스트를 완료하였습니다.
-
----
-
-## ✅ 문제 1 - 트리 기반 게시판 카테고리 구조 구현
-
-### ✅ 핵심 구현
-- `CategoryRelation`: parentId, id, name을 포함하는 관계 모델
-- `CategoryNode`: 계층형 트리 노드
-- `CategoryTreeBuilder`: 관계 기반 트리 구성 로직
-- `CategoryTree`: 검색 및 JSON 직렬화 기능 담당
-
-### 🔎 검증된 기능
-- `findById(int id)` / `findByName(String name)`로 하위 트리 포함 검색
-- `toJson()` 결과를 `ObjectMapper.readTree()`로 파싱 후 JSON 계층 검증
-
-### 🧪 테스트 구성
-- `CategoryTreeTest`: toJson 구조 검증 (`JsonNode` 기반 검증)
-- `CategoryTreeIntegrationTest`: 익명게시판/공지사항 ID, 이름별 분기 테스트
-- `CategoryNodeTest`, `CategoryTreeBuilderTest`: 단위 테스트 별도 존재
+본 프로젝트는 Hanteo Global의 백엔드 코딩테스트 문제 풀이입니다.  
+Java 17을 기반으로 작성되었으며, 모든 기능은 테스트 코드로 검증됩니다.
 
 ---
 
-## ✅ 문제 2 - 동전 조합으로 합 구하기 (Coin Change)
+## ✅ 문제 1. 게시판 카테고리 트리 구조
+
+### 📌 요구사항 요약
+- 각 카테고리는 ID, 이름, 부모 ID로 표현됨
+- 하나의 카테고리는 여러 부모를 가질 수 있음 (ex. 익명 게시판)
+- 같은 이름이라도 ID가 다르면 별도 노드로 취급해야 함 (ex. 공지사항)
+
+### 📐 설계 개요
+
+#### 자료구조
+
+| 클래스명 | 설명 |
+|----------|------|
+| `CategoryRelation` | parentId, categoryId, categoryName 정보를 포함한 입력 모델 |
+| `CategoryNode` | 트리의 실제 노드 객체, 자식 노드 목록 포함 |
+| `CategoryTreeBuilder` | CategoryRelation 리스트를 기반으로 트리 구성 |
+| `CategoryTree` | 트리 검색(findById, findByName) 및 JSON 직렬화 기능 제공 |
+
+- `Map<Integer, CategoryNode>`를 통해 categoryId 기준으로 중복 방지
+- `CategoryNode`는 트리형 구조를 재귀적으로 구성하며 `childCategories`를 포함
+
+#### 트리 생성 알고리즘
+
+1. `categoryId` 기준으로 모든 노드를 생성
+2. `parentId == null`인 노드는 루트 노드로 간주
+3. 그 외의 경우, 해당 부모의 자식 노드에 추가
+
+### 🧪 검증 포인트
+
+- `findById`, `findByName`: 자식 노드까지 포함하는 서브트리 반환
+- 동일한 `categoryId`를 가진 익명게시판은 객체 재사용됨 (`assertSame`)
+- 동일 이름이지만 다른 ID를 가진 공지사항은 별개 노드로 구성됨
 
 ---
 
-### ✅ 구현
+## ✅ 문제 2. 동전 조합으로 합 구하기
 
-- `CoinChange.countWays(int[] coins, int target)`
-- **Top-Down 재귀 기반 조합 탐색** 방식
-- 중복 허용 & 순서 무시 → **index 기반 DFS**
-- 내부적으로 `search(int[] coins, int remain, int index)` 호출하여 경우의 수 계산
+### 📐 설계 개요
+- 입력된 동전 종류로 합계 `target`을 만들 수 있는 모든 조합 수를 구함
+- 중복 허용, 순서 무시 → Top-Down DFS + Memoization 적용
 
----
-
-###
----
-
-## 🧪 실행 방법
-
-### Gradle 기준
-```bash
-./gradlew test
-```
-
-또는 IDE에서 각 `*Test.java` 우클릭 → Run Test
-
----
-
-## 📂 디렉토리 구조
-```
-src
-├── main
-│   └── java
-│       └── org.example.problem1  # 트리 구조 문제
-│       └── org.example.problem2  # 코인 조합 문제
-├── test
-    └── java  # 단위 & 통합 테스트
-        └── org.example.problem1  
-        └── org.example.problem2  
-```
-
----
-
+#### 구현 메소드
+```java
+int CoinChange.countWays(int[] coins, int target);
